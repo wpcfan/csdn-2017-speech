@@ -1,12 +1,14 @@
 import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
+
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/mapTo';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/scan';
+import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/do';
@@ -76,7 +78,8 @@ export class AppComponent implements AfterViewInit {
       .do(_ => console.log('decrement'))
       .mapTo(-1);
     return Observable.merge(increment$, decrement$)
-      .scan((acc, curr) => acc + curr);
+      .scan((acc, curr) => acc + curr)
+      .startWith(0);
   }
 
   private getRetryStrategyObservable(err: Observable<any>) {
