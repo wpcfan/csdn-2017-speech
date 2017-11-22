@@ -40,15 +40,14 @@ export interface CountDown {
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements AfterViewInit{
+export class AppComponent implements AfterViewInit {
 
-  title = 'app';
   readonly _MS_PER_SECOND = 1000;
-  readonly _FUTURE_DATE = '2017-11-23';
-  posts$: Observable<Post[]>;
-  countDown$: Observable<CountDown>;
+  readonly _FUTURE_DATE = '2017-11-26 00:00:00';
   @ViewChild('increment', {read: ElementRef}) increment: ElementRef;
   @ViewChild('decrement', {read: ElementRef}) decrement: ElementRef;
+  posts$: Observable<Post[]>;
+  countDown$: Observable<CountDown>;
   click$: Observable<number>;
 
   constructor(private http: HttpClient) {}
@@ -56,6 +55,17 @@ export class AppComponent implements AfterViewInit{
   ngAfterViewInit(): void {
     this.posts$ = this.getPosts();
     this.countDown$ = this.getCounDownObservable(new Date(), new Date(this._FUTURE_DATE));
+    this.click$ = this.getCounterObservable();
+  }
+
+  getPosts() : Observable<Post[]> {
+    const uri = `http://jsonplaceholder.typicode.com/posts1`;
+    return this.http
+      .get<Post[]>(uri)
+      .retryWhen(err => this.getRetryStrategyObservable(err))
+  }
+
+  private getCounterObservable(): Observable<number> {
     const increment$ = Observable
       .fromEvent(this.increment.nativeElement, 'click')
       .do(_ => console.log('increment'))
@@ -65,15 +75,8 @@ export class AppComponent implements AfterViewInit{
       .debounceTime(300)
       .do(_ => console.log('decrement'))
       .mapTo(-1);
-    this.click$ = Observable.merge(increment$, decrement$)
+    return Observable.merge(increment$, decrement$)
       .scan((acc, curr) => acc + curr);
-  }
-
-  getPosts() : Observable<Post[]> {
-    const uri = `http://jsonplaceholder.typicode.com/posts1`;
-    return this.http
-      .get<Post[]>(uri)
-      .retryWhen(err => this.getRetryStrategyObservable(err))
   }
 
   private getRetryStrategyObservable(err: Observable<any>) {
@@ -84,7 +87,10 @@ export class AppComponent implements AfterViewInit{
         // not found or service unavailable
         if(error.status === 404 || error.status === 503) {
           // 失败后不是立即重新尝试，而是等待越来越长的时间重试
-          return Observable.of(error.status).delay(Math.pow(2, count) * 1000);
+          console.log(count);
+          return count < 5 ?
+            Observable.of(error.status).delay(Math.pow(2, count) * 1000) :
+            Observable.of(error.status);
         }
         return Observable.throw({error: '没有进行重试', count: count});
       })
@@ -96,7 +102,7 @@ export class AppComponent implements AfterViewInit{
     return Math.floor(diff / this._MS_PER_SECOND)
   }
 
-  getCounDownObservable(now: Date, future: Date): Observable<CountDown> {
+  private getCounDownObservable(now: Date, future: Date): Observable<CountDown> {
     return Observable
       .interval(1000)
       .map(elapse => this.diffInSec(now, future) - elapse)

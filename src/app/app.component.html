@@ -14,7 +14,7 @@
 </div>
 
 <div class="count-down">
-  <h1>距离 {{_FUTURE_DATE | date:'yyyy-MM-dd':'+0800'}} 还有</h1>
+  <h1>距离 {{_FUTURE_DATE | date:'yyyy-MM-dd':'0800'}} 还有</h1>
   <ul>
     <li><span>{{(countDown$ | async)?.day}}</span>天</li>
     <li><span>{{(countDown$ | async)?.hour}}</span>小时</li>
