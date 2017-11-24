@@ -55,9 +55,9 @@ export class AppComponent implements AfterViewInit {
   constructor(private http: HttpClient) {}
 
   ngAfterViewInit(): void {
-    this.posts$ = this.getPosts();
     this.countDown$ = this.getCounDownObservable(new Date(), new Date(this._FUTURE_DATE));
     this.click$ = this.getCounterObservable();
+    this.posts$ = this.getPosts();
   }
 
   getPosts() : Observable<Post[]> {
