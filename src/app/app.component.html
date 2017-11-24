@@ -1,18 +1,3 @@
-<ul>
-  <li *ngFor="let post of posts$ | async">
-    {{post.title}}
-  </li>
-</ul>
-
-<div class="counter-container">
-  <label for="qty">计数器</label>
-  <div id="qty" class="numberCircle">{{click$ | async}}</div>
-  <div>
-    <button class="counter" #decrement>-1</button>
-    <button class="counter" #increment>+1</button>
-  </div>
-</div>
-
 <div class="count-down">
   <h1>距离 {{_FUTURE_DATE | date:'yyyy-MM-dd':'0800'}} 还有</h1>
   <ul>
