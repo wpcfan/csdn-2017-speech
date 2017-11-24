@@ -31,7 +31,7 @@ export class AppComponent implements AfterViewInit {
 
   private diffInSec = (now: Date, future: Date): number => {
     const diff = future.getTime() - now.getTime();
-    return Math.floor(diff / this._MS_PER_SECOND)
+    return Math.floor(diff / this._MS_PER_SECOND);
   }
 
   private getCounDownObservable(now: Date, future: Date): Observable<CountDown> {
@@ -40,9 +40,9 @@ export class AppComponent implements AfterViewInit {
       .map(elapse => this.diffInSec(now, future) - elapse)
       .takeWhile(gap => gap >= 0)
       .map(s => ({
-        day: Math.floor(s/3600/24),
-        hour: Math.floor(s/3600) % 24,
-        minute: Math.floor(s/60) % 60,
+        day: Math.floor(s / 3600 / 24),
+        hour: Math.floor(s / 3600) % 24,
+        minute: Math.floor(s / 60) % 60,
         second: s % 60
       }));
   }
