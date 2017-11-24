@@ -1,40 +1,22 @@
-import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 
 import 'rxjs/add/operator/retryWhen';
 import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/mapTo';
 import 'rxjs/add/operator/delay';
-import 'rxjs/add/operator/scan';
-import 'rxjs/add/operator/startWith';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/takeWhile';
 import 'rxjs/add/operator/concat';
 import 'rxjs/add/observable/of';
-import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/zip';
 import 'rxjs/add/observable/throw';
 import 'rxjs/add/observable/range';
-import 'rxjs/add/observable/timer';
-import 'rxjs/add/observable/interval';
-import 'rxjs/add/observable/merge';
 
 export interface Post {
   userId: number;
   id: number;
   title: string;
   body: string;
-}
-
-export interface CountDown {
-  day: number;
-  hour: number;
-  minute: number;
-  second: number;
 }
 
 @Component({
@@ -44,19 +26,11 @@ export interface CountDown {
 })
 export class AppComponent implements AfterViewInit {
 
-  readonly _MS_PER_SECOND = 1000;
-  readonly _FUTURE_DATE = '2017-11-26 00:00:00';
-  @ViewChild('increment', {read: ElementRef}) increment: ElementRef;
-  @ViewChild('decrement', {read: ElementRef}) decrement: ElementRef;
   posts$: Observable<Post[]>;
-  countDown$: Observable<CountDown>;
-  click$: Observable<number>;
 
   constructor(private http: HttpClient) {}
 
   ngAfterViewInit(): void {
-    this.countDown$ = this.getCounDownObservable(new Date(), new Date(this._FUTURE_DATE));
-    this.click$ = this.getCounterObservable();
     this.posts$ = this.getPosts();
   }
 
@@ -65,21 +39,6 @@ export class AppComponent implements AfterViewInit {
     return this.http
       .get<Post[]>(uri)
       .retryWhen(err => this.getRetryStrategyObservable(err))
-  }
-
-  private getCounterObservable(): Observable<number> {
-    const increment$ = Observable
-      .fromEvent(this.increment.nativeElement, 'click')
-      .do(_ => console.log('increment'))
-      .mapTo(1);
-    const decrement$ = Observable
-      .fromEvent(this.decrement.nativeElement, 'click')
-      .debounceTime(300)
-      .do(_ => console.log('decrement'))
-      .mapTo(-1);
-    return Observable.merge(increment$, decrement$)
-      .scan((acc, curr) => acc + curr)
-      .startWith(0);
   }
 
   private getRetryStrategyObservable(err: Observable<any>) {
@@ -98,23 +57,5 @@ export class AppComponent implements AfterViewInit {
         return Observable.throw({error: '没有进行重试', count: count});
       })
       .concat(Observable.throw({error: '尝试 5 次后失败'}));
-  }
-
-  private diffInSec = (now: Date, future: Date): number => {
-    const diff = future.getTime() - now.getTime();
-    return Math.floor(diff / this._MS_PER_SECOND)
-  }
-
-  private getCounDownObservable(now: Date, future: Date): Observable<CountDown> {
-    return Observable
-      .interval(1000)
-      .map(elapse => this.diffInSec(now, future) - elapse)
-      .takeWhile(gap => gap >= 0)
-      .map(s => ({
-        day: Math.floor(s/3600/24),
-        hour: Math.floor(s/3600) % 24,
-        minute: Math.floor(s/60) % 60,
-        second: s % 60
-      }));
   }
 }
