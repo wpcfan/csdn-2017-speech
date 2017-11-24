@@ -34,11 +34,11 @@ export class AppComponent implements AfterViewInit {
     this.posts$ = this.getPosts();
   }
 
-  getPosts() : Observable<Post[]> {
+  getPosts(): Observable<Post[]> {
     const uri = `http://jsonplaceholder.typicode.com/posts1`;
     return this.http
       .get<Post[]>(uri)
-      .retryWhen(err => this.getRetryStrategyObservable(err))
+      .retryWhen(err => this.getRetryStrategyObservable(err));
   }
 
   private getRetryStrategyObservable(err: Observable<any>) {
@@ -47,7 +47,7 @@ export class AppComponent implements AfterViewInit {
     return errWithRetry$
       .mergeMap(({error, count}) => {
         // not found or service unavailable
-        if(error.status === 404 || error.status === 503) {
+        if (error.status === 404 || error.status === 503) {
           // 失败后不是立即重新尝试，而是等待越来越长的时间重试
           console.log(count);
           return count < 5 ?
