@@ -60,11 +60,11 @@ export class AppComponent implements AfterViewInit {
     this.posts$ = this.getPosts();
   }
 
-  getPosts() : Observable<Post[]> {
+  getPosts(): Observable<Post[]> {
     const uri = `http://jsonplaceholder.typicode.com/posts1`;
     return this.http
       .get<Post[]>(uri)
-      .retryWhen(err => this.getRetryStrategyObservable(err))
+      .retryWhen(err => this.getRetryStrategyObservable(err));
   }
 
   private getCounterObservable(): Observable<number> {
@@ -88,7 +88,7 @@ export class AppComponent implements AfterViewInit {
     return errWithRetry$
       .mergeMap(({error, count}) => {
         // not found or service unavailable
-        if(error.status === 404 || error.status === 503) {
+        if (error.status === 404 || error.status === 503) {
           // 失败后不是立即重新尝试，而是等待越来越长的时间重试
           console.log(count);
           return count < 5 ?
@@ -102,7 +102,7 @@ export class AppComponent implements AfterViewInit {
 
   private diffInSec = (now: Date, future: Date): number => {
     const diff = future.getTime() - now.getTime();
-    return Math.floor(diff / this._MS_PER_SECOND)
+    return Math.floor(diff / this._MS_PER_SECOND);
   }
 
   private getCounDownObservable(now: Date, future: Date): Observable<CountDown> {
@@ -111,9 +111,9 @@ export class AppComponent implements AfterViewInit {
       .map(elapse => this.diffInSec(now, future) - elapse)
       .takeWhile(gap => gap >= 0)
       .map(s => ({
-        day: Math.floor(s/3600/24),
-        hour: Math.floor(s/3600) % 24,
-        minute: Math.floor(s/60) % 60,
+        day: Math.floor(s / 3600 / 24),
+        hour: Math.floor(s / 3600) % 24,
+        minute: Math.floor(s / 60) % 60,
         second: s % 60
       }));
   }
